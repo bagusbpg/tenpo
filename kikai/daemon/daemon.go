@@ -13,12 +13,20 @@ import (
 )
 
 type Component interface {
+	// New initiates the service with the given config
 	New(config interface{}) error
+
+	// Start starts the service's components
 	Start() error
+
+	// Stop stops the service's components gracefully
 	Stop() error
 }
 
 type Runner interface {
+	// Run will call New and then Start. Run will call
+	// Stop when syscall.SIGINT or syscall.SIGTERM is
+	// received.
 	Run(component Component, config interface{})
 }
 
@@ -84,6 +92,12 @@ func (ths *runner) Run(component Component, config interface{}) {
 		return
 	}
 
+	slog.LogAttrs(
+		ctx,
+		slog.LevelInfo, "staring service",
+		slog.String("ENV_MODE", envMode),
+	)
+
 	err = component.Start()
 	if err != nil {
 		slog.LogAttrs(
@@ -102,12 +116,6 @@ func (ths *runner) Run(component Component, config interface{}) {
 		}
 
 		close(terminated)
-	} else {
-		slog.LogAttrs(
-			ctx,
-			slog.LevelInfo, "service started",
-			slog.String("ENV_MODE", envMode),
-		)
 	}
 
 	<-terminated
