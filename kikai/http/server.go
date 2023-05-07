@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -79,11 +80,7 @@ func (ths *server) Start() error {
 	)
 
 	if err := ths.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		slog.LogAttrs(
-			ctx,
-			slog.LevelError, "http server failed listening and serving",
-			slog.String("causedBy", err.Error()),
-		)
+		return fmt.Errorf("failed listening and serving http server: %s", err.Error())
 	}
 
 	return nil
@@ -94,11 +91,7 @@ func (ths *server) Stop() error {
 	defer cancel()
 
 	if err := ths.httpServer.Shutdown(ctx); err != nil {
-		slog.LogAttrs(
-			ctx,
-			slog.LevelError, "http server failed stopping",
-			slog.String("causedBy", err.Error()),
-		)
+		return fmt.Errorf("failed shutting down http server: %s", err.Error())
 	}
 
 	slog.LogAttrs(
