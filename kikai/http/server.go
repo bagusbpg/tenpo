@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
+	"runtime"
+	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -19,7 +22,9 @@ type Server interface {
 	// Stop stops http server by calling Shutdown
 	Stop() error
 
-	// AddRoute registers new route to http router
+	// AddRoute registers new route to http router with
+	// default logger and response writer content-type
+	// (json) are set via global middleware
 	AddRoute(method string, pattern string, handler http.Handler)
 }
 
@@ -103,13 +108,15 @@ func (ths *server) Stop() error {
 }
 
 func (ths *server) AddRoute(method string, path string, handler http.Handler) {
+	handlerName := getFuncName(handler)
 	newHandler := func(h http.Handler) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			slog.LogAttrs(
 				context.Background(),
 				slog.LevelInfo, "receiving http request",
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.String()),
+				slog.String("handler", handlerName),
 			)
 			w.Header().Set("Content-Type", "application/json")
 
@@ -124,6 +131,8 @@ func (ths *server) AddRoute(method string, path string, handler http.Handler) {
 		ths.router.GET(path, newHandler)
 	case http.MethodPut:
 		ths.router.PUT(path, newHandler)
+	case http.MethodPatch:
+		ths.router.PATCH(path, newHandler)
 	case http.MethodDelete:
 		ths.router.DELETE(path, newHandler)
 	default:
@@ -133,4 +142,10 @@ func (ths *server) AddRoute(method string, path string, handler http.Handler) {
 			slog.String("method", method),
 		)
 	}
+}
+
+var re = regexp.MustCompile(`\)\.[^\.]*`)
+
+func getFuncName(handler http.Handler) string {
+	return strings.TrimPrefix(re.FindString(runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()), ").")
 }
