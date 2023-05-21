@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=temochi
+%uri=https://github.com/bagusbpg/tenpo/temochi_impl/migration
+
+20230429_create_temochi_schema 2023-04-29T01:25:59Z gotama <gotama@gotama-vostro3490> # create temochi schema and tables

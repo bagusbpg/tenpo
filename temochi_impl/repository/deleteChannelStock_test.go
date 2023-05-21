@@ -1,0 +1,54 @@
+package repository
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+)
+
+func TestDeleteChannelStock(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("failed opening a stub database connection: %s", err.Error())
+	}
+	defer db.Close()
+
+	mockedRepository := New(db)
+
+	ctx := context.TODO()
+	input := DeleteChannelStockDBInput{
+		WarehouseID: "dummy-warehouse-id",
+		GateID:      "dummy-gate-id",
+		ChannelID:   "dummy-channel-id",
+	}
+
+	t.Run("With ExecContext returns error", func(t *testing.T) {
+		mock.
+			ExpectExec(DELETE_CHANNEL_STOCK_QUERY).
+			WithArgs(input.WarehouseID, input.GateID, input.ChannelID).
+			WillReturnError(errors.New("dummy-error"))
+
+		err := mockedRepository.DeleteChannelStock(ctx, input, nil)
+		if err == nil {
+			t.Error("error should be returned")
+		}
+	})
+
+	t.Run("With ExecContext returns no error", func(t *testing.T) {
+		mock.
+			ExpectExec(DELETE_CHANNEL_STOCK_QUERY).
+			WithArgs(input.WarehouseID, input.GateID, input.ChannelID).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		err := mockedRepository.DeleteChannelStock(ctx, input, nil)
+		if err != nil {
+			t.Error("nil should be returned")
+		}
+	})
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}

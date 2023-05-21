@@ -1,0 +1,14 @@
+{
+    "ServerConfig": {
+        "GracefulShutdownTimeoutSec": 10
+    },
+    "DBConfig": {
+        "Username": "temochiapp",
+	    "Password": "temochiapp",
+	    "Host": "localhost",
+	    "DBName": "tenpo",
+	    "SSL": "disable",
+	    "MaxOpenConnections": 10,
+	    "MaxIdleConnections": 10
+    }
+}
