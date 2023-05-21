@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/slog"
 )
@@ -111,14 +112,23 @@ func (ths *server) AddRoute(method string, path string, handler http.Handler) {
 	handlerName := getFuncName(handler)
 	newHandler := func(h http.Handler) httprouter.Handle {
 		return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+			w.Header().Set("Content-Type", "application/json")
+
+			ctx := r.Context()
+			requestID, ok := ctx.Value(REQUEST_ID_CONTEXT_KEY).(string)
+			if !ok {
+				requestID = uuid.New().String()
+				ctx = context.WithValue(ctx, REQUEST_ID_CONTEXT_KEY, requestID)
+				r = r.WithContext(ctx)
+			}
 			slog.LogAttrs(
 				context.Background(),
 				slog.LevelInfo, "receiving http request",
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.String()),
 				slog.String("handler", handlerName),
+				slog.String("requestID", requestID),
 			)
-			w.Header().Set("Content-Type", "application/json")
 
 			handler.ServeHTTP(w, r)
 		}
