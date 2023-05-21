@@ -106,7 +106,14 @@ type ChannelStockSpec struct {
 	Stock     uint32 `json:"stock" validate:"required,gte=0"`
 }
 
-type UpsertStocksRes struct{}
+type UpsertStocksRes struct {
+	FailedSpecs []FailedUpsertStockSpec `json:"failedItems"`
+}
+
+type FailedUpsertStockSpec struct {
+	SKU     string `json:"sku"`
+	Message string `json:"code"`
+}
 
 type UpdateChannelStocksReq struct {
 	ActorID                 string                   `json:"actorId"`
