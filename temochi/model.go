@@ -15,7 +15,7 @@ type ChannelStock struct {
 	SKU         string `json:"sku"`
 	GateID      string `json:"gateId"`
 	ChannelID   string `json:"channelId"`
-	Stock       uint32 `json:"stock"`
+	Stock       int32  `json:"stock"`
 	Version     uint64 `json:"version"`
 	CreatedAt   int64  `json:"createdAt"`
 	UpdatedAt   int64  `json:"updatedAt"`
