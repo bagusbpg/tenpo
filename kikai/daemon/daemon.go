@@ -137,18 +137,18 @@ func loadConfig(config interface{}, envMode string) error {
 	file := fmt.Sprintf("./config/%s.json", envMode)
 	jsonFile, err := os.Open(file)
 	if err != nil {
-		return fmt.Errorf("error opening file [%s]: %v", file, err)
+		return fmt.Errorf("failed opening file [%s]: %v", file, err)
 	}
 	defer jsonFile.Close()
 
 	jsonByte, err := io.ReadAll(jsonFile)
 	if err != nil {
-		return fmt.Errorf("error reading file [%s]: %v", file, err)
+		return fmt.Errorf("failed reading file [%s]: %v", file, err)
 	}
 
 	err = json.Unmarshal(jsonByte, config)
 	if err != nil {
-		return fmt.Errorf("error parsing file: %v", err)
+		return fmt.Errorf("failed parsing file: %v", err)
 	}
 
 	return nil
