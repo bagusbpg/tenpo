@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"reflect"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/exp/slog"
 )
 
 type Server interface {
@@ -86,7 +86,7 @@ func (ths *server) Start() error {
 	)
 
 	if err := ths.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("failed listening and serving http server: %s", err.Error())
+		return fmt.Errorf("failed listening and serving http server: %v", err)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func (ths *server) Stop() error {
 	defer cancel()
 
 	if err := ths.httpServer.Shutdown(ctx); err != nil {
-		return fmt.Errorf("failed shutting down http server: %s", err.Error())
+		return fmt.Errorf("failed shutting down http server: %v", err)
 	}
 
 	slog.LogAttrs(
