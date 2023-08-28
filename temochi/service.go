@@ -1,6 +1,6 @@
 package temochi
 
-//go: generate mockgen -source=./service.go -destination=./mock/mock.go -package=mock
+//go:generate mockgen -source=./service.go -destination=./mock/mock.go -package=mock
 
 import "context"
 

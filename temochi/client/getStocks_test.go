@@ -48,7 +48,7 @@ func TestGetStocks(t *testing.T) {
 	t.Run("When res is nil", func(t *testing.T) {
 		client := NewTemochiClient(Config{})
 
-		err := client.GetStocks(context.TODO(), req, &res)
+		err := client.GetStocks(context.TODO(), req, nil)
 		if err == nil {
 			t.Error("error should be returned")
 		}
