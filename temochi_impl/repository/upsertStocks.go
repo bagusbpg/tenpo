@@ -9,26 +9,31 @@ import (
 )
 
 func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStockDBInput, output *service.UpsertStockDBOutput) error {
+	queryUpsertInventory, argsUpsertInventory := buildUpsertInventoryQuery(input)
+	queryUpsertChannelStock, argsUpsertChannelStock := "", make([]interface{}, 0)
+	queryDeleteChannelStock, argsDeleteChannelStock := "", make([]interface{}, 0)
+	if len(input.UpsertChannelStockInputs) > 0 {
+		queryUpsertChannelStock, argsUpsertChannelStock = buildUpsertChannelStockQuery(input)
+		queryDeleteChannelStock, argsDeleteChannelStock = buildDeleteExcludedGateChannelStockQuery(input)
+	}
+
 	tx, err := ths.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed starting UpsertStock transaction: %s", err.Error())
 	}
 	defer tx.Rollback()
 
-	queryUpsertInventory, argsUpsertInventory := buildUpsertInventoryQuery(input)
 	_, err = tx.ExecContext(ctx, queryUpsertInventory, argsUpsertInventory...)
 	if err != nil {
 		return fmt.Errorf("failed executing UpsertInventory query: %s", err.Error())
 	}
 
 	if len(input.UpsertChannelStockInputs) > 0 {
-		queryUpsertChannelStock, argsUpsertChannelStock := buildUpsertChannelStockQuery(input)
 		_, err = tx.ExecContext(ctx, queryUpsertChannelStock, argsUpsertChannelStock...)
 		if err != nil {
 			return fmt.Errorf("failed executing UpsertChannelStock query: %s", err.Error())
 		}
 
-		queryDeleteChannelStock, argsDeleteChannelStock := buildDeleteExcludedGateChannelStockQuery(input)
 		_, err = tx.ExecContext(ctx, queryDeleteChannelStock, argsDeleteChannelStock...)
 		if err != nil {
 			return fmt.Errorf("failed executing DeletedChannelStock query: %s", err.Error())
