@@ -16,7 +16,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type server struct {
+type Server struct {
 	httpServer      *http.Server
 	router          *httprouter.Router
 	shutdownTimeout time.Duration
@@ -26,7 +26,7 @@ type ServerConfig struct {
 	GracefulShutdownTimeoutSec uint8
 }
 
-func NewHTTPServer(config ServerConfig) *server {
+func NewHTTPServer(config ServerConfig) *Server {
 	ctx := context.Background()
 	port := DEFAULT_HTTP_SERVER_PORT
 	httpServerPort := os.Getenv("HTTP_SERVER_PORT")
@@ -54,7 +54,7 @@ func NewHTTPServer(config ServerConfig) *server {
 
 	router := httprouter.New()
 
-	return &server{
+	return &Server{
 		httpServer: &http.Server{
 			Addr:    "0.0.0.0:" + port,
 			Handler: router,
@@ -65,7 +65,7 @@ func NewHTTPServer(config ServerConfig) *server {
 }
 
 // Start starts http server by calling ListenAndServe
-func (ths *server) Start() error {
+func (ths *Server) Start() error {
 	ctx := context.Background()
 	slog.LogAttrs(
 		ctx,
@@ -81,7 +81,7 @@ func (ths *server) Start() error {
 }
 
 // Stop stops http server by calling Shutdown
-func (ths *server) Stop() error {
+func (ths *Server) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), ths.shutdownTimeout)
 	defer cancel()
 
@@ -100,7 +100,7 @@ func (ths *server) Stop() error {
 // AddRoute registers new route to http router with
 // default logger and response writer content-type
 // (json) are set via global middleware
-func (ths *server) AddRoute(method string, path string, handler http.Handler) {
+func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
 	handlerName := getFuncName(handler)
 	newHandler := func(h http.Handler) httprouter.Handle {
 		return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
