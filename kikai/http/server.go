@@ -16,19 +16,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type Server interface {
-	// Start starts http server by calling ListenAndServe
-	Start() error
-
-	// Stop stops http server by calling Shutdown
-	Stop() error
-
-	// AddRoute registers new route to http router with
-	// default logger and response writer content-type
-	// (json) are set via global middleware
-	AddRoute(method string, pattern string, handler http.Handler)
-}
-
 type server struct {
 	httpServer      *http.Server
 	router          *httprouter.Router
@@ -39,7 +26,7 @@ type ServerConfig struct {
 	GracefulShutdownTimeoutSec uint8
 }
 
-func NewHTTPServer(config ServerConfig) Server {
+func NewHTTPServer(config ServerConfig) *server {
 	ctx := context.Background()
 	port := DEFAULT_HTTP_SERVER_PORT
 	httpServerPort := os.Getenv("HTTP_SERVER_PORT")
@@ -77,6 +64,7 @@ func NewHTTPServer(config ServerConfig) Server {
 	}
 }
 
+// Start starts http server by calling ListenAndServe
 func (ths *server) Start() error {
 	ctx := context.Background()
 	slog.LogAttrs(
@@ -92,6 +80,7 @@ func (ths *server) Start() error {
 	return nil
 }
 
+// Stop stops http server by calling Shutdown
 func (ths *server) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), ths.shutdownTimeout)
 	defer cancel()
@@ -108,6 +97,9 @@ func (ths *server) Stop() error {
 	return nil
 }
 
+// AddRoute registers new route to http router with
+// default logger and response writer content-type
+// (json) are set via global middleware
 func (ths *server) AddRoute(method string, path string, handler http.Handler) {
 	handlerName := getFuncName(handler)
 	newHandler := func(h http.Handler) httprouter.Handle {
