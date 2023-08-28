@@ -22,20 +22,10 @@ type Component interface {
 	Stop() error
 }
 
-type Runner interface {
-	// Run will call New and then Start. Run will call
-	// Stop when syscall.SIGINT or syscall.SIGTERM is
-	// received.
-	Run(component Component, config interface{})
-}
-
-type runner struct{}
-
-func NewServiceRunner() Runner {
-	return &runner{}
-}
-
-func (ths *runner) Run(component Component, config interface{}) {
+// Run will call New and then Start. Run will call
+// Stop when syscall.SIGINT or syscall.SIGTERM is
+// received.
+func Run(component Component, config interface{}) {
 	ctx := context.Background()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
