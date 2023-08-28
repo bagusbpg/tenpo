@@ -82,7 +82,7 @@ type DeleteStockDBInput struct {
 
 type DeleteStockDBOutput struct{}
 
-func New(repository Repository) temochi.Service {
+func New(repository Repository) *service {
 	return &service{
 		repository: repository,
 	}
