@@ -2,17 +2,23 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	tenpoHttp "github.com/bagusbpg/tenpo/kikai/http"
 	"github.com/bagusbpg/tenpo/temochi"
-	"golang.org/x/exp/slog"
 )
 
 func (ths *handler) UpdateChannelStocks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestID := r.Context().Value(tenpoHttp.REQUEST_ID_CONTEXT_KEY).(string)
+		requestID, ok := r.Context().Value(tenpoHttp.REQUEST_ID_CONTEXT_KEY).(string)
+		if !ok {
+			slog.LogAttrs(
+				r.Context(),
+				slog.LevelWarn, "request has no requestID",
+			)
+		}
 
 		var req temochi.UpdateChannelStocksReq
 		err := json.NewDecoder(r.Body).Decode(&req)

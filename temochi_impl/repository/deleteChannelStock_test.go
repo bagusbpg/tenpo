@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
 func TestDeleteChannelStock(t *testing.T) {
@@ -18,7 +19,7 @@ func TestDeleteChannelStock(t *testing.T) {
 	mockedRepository := New(db)
 
 	ctx := context.TODO()
-	input := DeleteChannelStockDBInput{
+	input := service.DeleteChannelStockDBInput{
 		WarehouseID: "dummy-warehouse-id",
 		GateID:      "dummy-gate-id",
 		ChannelID:   "dummy-channel-id",

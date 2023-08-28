@@ -6,14 +6,12 @@ import (
 	"testing"
 
 	"github.com/bagusbpg/tenpo/temochi"
-	"github.com/bagusbpg/tenpo/temochi_impl/repository"
-	"github.com/bagusbpg/tenpo/temochi_impl/repository/mock"
 	"github.com/golang/mock/gomock"
 )
 
 func TestUpdateChannelStocks(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockedRepository := mock.NewMockRepository(ctrl)
+	mockedRepository := NewMockRepository(ctrl)
 	testService := New(mockedRepository)
 
 	ctx := context.TODO()
@@ -30,9 +28,9 @@ func TestUpdateChannelStocks(t *testing.T) {
 			},
 		},
 	}
-	input := repository.UpdateChannelStocksDBInput{
+	input := UpdateChannelStocksDBInput{
 		WarehouseID: req.WarehouseID,
-		UpdateChannelStockInputs: []repository.UpdateChannelStockInput{
+		UpdateChannelStockInputs: []UpdateChannelStockInput{
 			{
 				SKU:       req.UpdateChannelStockSpecs[0].SKU,
 				GateID:    req.UpdateChannelStockSpecs[0].GateID,

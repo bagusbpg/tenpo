@@ -7,24 +7,10 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/bagusbpg/tenpo/temochi"
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
-type GetStocksDBInput struct {
-	WarehouseID string
-	SKUs        []string
-}
-
-type GetStocksDBOutput struct {
-	Stocks []StockDB
-}
-
-type StockDB struct {
-	temochi.Inventory
-	ChannelStocks []temochi.ChannelStock `json:"channelStocks"`
-}
-
-func (ths *repository) GetStocks(ctx context.Context, input GetStocksDBInput, output *GetStocksDBOutput) error {
+func (ths *repository) GetStocks(ctx context.Context, input service.GetStocksDBInput, output *service.GetStocksDBOutput) error {
 	query, args := buildGetStocksQuery(ctx, input)
 
 	var res sql.NullString
@@ -45,7 +31,7 @@ func (ths *repository) GetStocks(ctx context.Context, input GetStocksDBInput, ou
 	return nil
 }
 
-func buildGetStocksQuery(ctx context.Context, input GetStocksDBInput) (string, []interface{}) {
+func buildGetStocksQuery(ctx context.Context, input service.GetStocksDBInput) (string, []interface{}) {
 	channelStockCTEQuery, channelStockArgs := sq.
 		Select(
 			"warehouse_id",

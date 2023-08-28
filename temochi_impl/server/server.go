@@ -16,7 +16,7 @@ import (
 
 type Component struct {
 	config *config.Config
-	server tenpoHttp.Server
+	server *tenpoHttp.Server
 }
 
 func (ths *Component) New(appConfig interface{}) error {

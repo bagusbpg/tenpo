@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
 func TestUpdateChannelStocks(t *testing.T) {
@@ -18,9 +19,9 @@ func TestUpdateChannelStocks(t *testing.T) {
 	mockedRepository := New(db)
 
 	ctx := context.TODO()
-	input := UpdateChannelStocksDBInput{
+	input := service.UpdateChannelStocksDBInput{
 		WarehouseID:              "dummy-warehouse-id",
-		UpdateChannelStockInputs: []UpdateChannelStockInput{{SKU: "dummy-sku", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Delta: -1}},
+		UpdateChannelStockInputs: []service.UpdateChannelStockInput{{SKU: "dummy-sku", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Delta: -1}},
 	}
 
 	t.Run("With Begin returns error", func(t *testing.T) {

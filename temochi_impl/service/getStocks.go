@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/bagusbpg/tenpo/temochi"
-	"github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
 func (ths *service) GetStocks(ctx context.Context, req temochi.GetStocksReq, res *temochi.GetStocksRes) error {
@@ -13,11 +12,11 @@ func (ths *service) GetStocks(ctx context.Context, req temochi.GetStocksReq, res
 		return nil
 	}
 
-	input := repository.GetStocksDBInput{
+	input := GetStocksDBInput{
 		WarehouseID: req.WarehouseID,
 		SKUs:        req.SKUs,
 	}
-	output := repository.GetStocksDBOutput{}
+	output := GetStocksDBOutput{}
 	if err := ths.repository.GetStocks(ctx, input, &output); err != nil {
 		return fmt.Errorf("failed at repository.GetStocks: %s", err.Error())
 	}

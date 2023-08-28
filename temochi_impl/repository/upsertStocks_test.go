@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
 func TestUpsertStocks(t *testing.T) {
@@ -18,10 +19,10 @@ func TestUpsertStocks(t *testing.T) {
 	mockedRepository := New(db)
 
 	ctx := context.TODO()
-	input := UpsertStockDBInput{
+	input := service.UpsertStockDBInput{
 		WarehouseID:              "dummy-warehouse-id",
-		UpsertInventoryInputs:    []UpsertInventoryInput{{SKU: "dummy-sku", Stock: 10, BufferStock: 2}},
-		UpsertChannelStockInputs: []UpsertChannelStockInput{{SKU: "dummy-sku", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Stock: 5}},
+		UpsertInventoryInputs:    []service.UpsertInventoryInput{{SKU: "dummy-sku", Stock: 10, BufferStock: 2}},
+		UpsertChannelStockInputs: []service.UpsertChannelStockInput{{SKU: "dummy-sku", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Stock: 5}},
 	}
 
 	queryUpsertInventory, _ := buildUpsertInventoryQuery(input)

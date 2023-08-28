@@ -7,14 +7,12 @@ import (
 	"time"
 
 	"github.com/bagusbpg/tenpo/temochi"
-	"github.com/bagusbpg/tenpo/temochi_impl/repository"
-	"github.com/bagusbpg/tenpo/temochi_impl/repository/mock"
 	"github.com/golang/mock/gomock"
 )
 
 func TestGetStocks(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockedRepository := mock.NewMockRepository(ctrl)
+	mockedRepository := NewMockRepository(ctrl)
 	testService := New(mockedRepository)
 
 	ctx := context.TODO()
@@ -30,11 +28,11 @@ func TestGetStocks(t *testing.T) {
 
 	req.WarehouseID = "dummy-warehouse-id"
 	req.SKUs = []string{"dummy-sku-1", "dummy-sku-2"}
-	input := repository.GetStocksDBInput{
+	input := GetStocksDBInput{
 		WarehouseID: req.WarehouseID,
 		SKUs:        req.SKUs,
 	}
-	output := repository.GetStocksDBOutput{}
+	output := GetStocksDBOutput{}
 
 	t.Run("With repository.GetStocks returns error", func(t *testing.T) {
 		mockedRepository.EXPECT().
@@ -51,8 +49,8 @@ func TestGetStocks(t *testing.T) {
 	t.Run("With repository.GetStocks returns no error", func(t *testing.T) {
 		mockedRepository.EXPECT().
 			GetStocks(ctx, input, &output).
-			Do(func(_ context.Context, _ repository.GetStocksDBInput, output *repository.GetStocksDBOutput) {
-				output.Stocks = []repository.StockDB{
+			Do(func(_ context.Context, _ GetStocksDBInput, output *GetStocksDBOutput) {
+				output.Stocks = []StockDB{
 					{
 						Inventory: temochi.Inventory{
 							WarehouseID: "dummy-warehouse-id",

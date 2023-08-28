@@ -5,30 +5,10 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
-type UpsertStockDBInput struct {
-	WarehouseID              string
-	UpsertInventoryInputs    []UpsertInventoryInput
-	UpsertChannelStockInputs []UpsertChannelStockInput
-}
-
-type UpsertInventoryInput struct {
-	SKU         string
-	Stock       uint32
-	BufferStock uint32
-}
-
-type UpsertChannelStockInput struct {
-	SKU       string
-	GateID    string
-	ChannelID string
-	Stock     uint32
-}
-
-type UpsertStockDBOutput struct{}
-
-func (ths *repository) UpsertStock(ctx context.Context, input UpsertStockDBInput, output *UpsertStockDBOutput) error {
+func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStockDBInput, output *service.UpsertStockDBOutput) error {
 	tx, err := ths.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed starting UpsertStock transaction: %s", err.Error())
@@ -63,7 +43,7 @@ func (ths *repository) UpsertStock(ctx context.Context, input UpsertStockDBInput
 	return nil
 }
 
-func buildUpsertInventoryQuery(input UpsertStockDBInput) (string, []interface{}) {
+func buildUpsertInventoryQuery(input service.UpsertStockDBInput) (string, []interface{}) {
 	queryBuilder := sq.
 		Insert(`"temochi".inventory`).
 		Columns(
@@ -81,7 +61,7 @@ func buildUpsertInventoryQuery(input UpsertStockDBInput) (string, []interface{})
 	return queryBuilder.PlaceholderFormat(sq.Dollar).MustSql()
 }
 
-func buildUpsertChannelStockQuery(input UpsertStockDBInput) (string, []interface{}) {
+func buildUpsertChannelStockQuery(input service.UpsertStockDBInput) (string, []interface{}) {
 	queryBuilder := sq.
 		Insert(`"temochi".channel_stock`).
 		Columns(
@@ -100,7 +80,7 @@ func buildUpsertChannelStockQuery(input UpsertStockDBInput) (string, []interface
 	return queryBuilder.PlaceholderFormat(sq.Dollar).MustSql()
 }
 
-func buildDeleteExcludedGateChannelStockQuery(input UpsertStockDBInput) (string, []interface{}) {
+func buildDeleteExcludedGateChannelStockQuery(input service.UpsertStockDBInput) (string, []interface{}) {
 	excludedGateChannel := make([]string, 0, len(input.UpsertChannelStockInputs))
 	skus := make([]string, 0, len(input.UpsertChannelStockInputs))
 	for _, item := range input.UpsertChannelStockInputs {

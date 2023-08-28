@@ -3,21 +3,9 @@ package repository
 import (
 	"context"
 	"fmt"
+
+	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
-
-type UpdateChannelStocksDBInput struct {
-	WarehouseID              string
-	UpdateChannelStockInputs []UpdateChannelStockInput
-}
-
-type UpdateChannelStockInput struct {
-	SKU       string
-	GateID    string
-	ChannelID string
-	Delta     int32
-}
-
-type UpdateChannelStocksDBOutput struct{}
 
 const UPDATE_CHANNEL_STOCK_QUERY = `
 UPDATE "temochi".channel_stock
@@ -48,7 +36,7 @@ SET stock = channel_stock.stock + $1,
 	updated_at = NOW()
 WHERE warehouse_id = $2 AND sku = $3 AND (gate_id <> $4 OR channel_id <> $5)`
 
-func (ths *repository) UpdateChannelStocks(ctx context.Context, input UpdateChannelStocksDBInput, output *UpdateChannelStocksDBOutput) error {
+func (ths *repository) UpdateChannelStocks(ctx context.Context, input service.UpdateChannelStocksDBInput, output *service.UpdateChannelStocksDBOutput) error {
 	tx, err := ths.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed starting UpdateChannelStocks transaction: %s", err.Error())
