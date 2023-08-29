@@ -20,7 +20,12 @@ type Config struct {
 func NewClient(config Config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", config.Username, config.Password, config.Host, config.DBName, config.SSL))
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %s", err.Error())
+		return nil, fmt.Errorf("failed to open database: %v", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify connection to database: %v", err)
 	}
 
 	db.SetMaxOpenConns(config.MaxOpenConnections)
