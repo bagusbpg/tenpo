@@ -20,29 +20,47 @@ func TestUpsertStocks(t *testing.T) {
 
 	ctx := context.TODO()
 	input := service.UpsertStockDBInput{
-		WarehouseID:              "dummy-warehouse-id",
-		UpsertInventoryInputs:    []service.UpsertInventoryInput{{SKU: "dummy-sku", Stock: 10, BufferStock: 2}},
-		UpsertChannelStockInputs: []service.UpsertChannelStockInput{{SKU: "dummy-sku", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Stock: 5}},
+		WarehouseID: "dummy-warehouse-id",
+		UpsertInventoryInputs: []service.UpsertInventoryInput{
+			{SKU: "dummy-sku-1", Stock: 10, BufferStock: 2},
+			{SKU: "dummy-sku-2", Stock: 9, BufferStock: 1},
+		},
+		UpsertChannelStockInputs: []service.UpsertChannelStockInput{
+			{SKU: "dummy-sku-1", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Stock: 5},
+			{SKU: "dummy-sku-2", GateID: "dummy-gate-id", ChannelID: "dummy-channel-id", Stock: 5},
+		},
 	}
 
-	queryUpsertInventory, _ := buildUpsertInventoryQuery(input)
-	queryUpsertChannelStock, _ := buildUpsertChannelStockQuery(input)
-	queryDeleteChannelStock, _ := buildDeleteExcludedGateChannelStockQuery(input)
+	query, _ := buildUpsertStocksQuery(input)
 
-	t.Run("With Begin returns error", func(t *testing.T) {
-		mock.ExpectBegin().WillReturnError(errors.New("dummy-error"))
-
-		err := mockedRepository.UpsertStock(ctx, input, nil)
-		if err == nil {
-			t.Error("error should be returned")
-		}
-	})
-
-	t.Run("With ExecContext queryUpsertInventory returns error", func(t *testing.T) {
-		mock.ExpectBegin()
+	t.Run("With ExecContext returns error", func(t *testing.T) {
 		mock.
-			ExpectExec(queryUpsertInventory).
-			WithArgs(input.WarehouseID, input.UpsertInventoryInputs[0].SKU, input.UpsertInventoryInputs[0].Stock, input.UpsertInventoryInputs[0].BufferStock).
+			ExpectExec(query).
+			WithArgs(
+				input.WarehouseID,
+				input.UpsertChannelStockInputs[0].SKU,
+				input.UpsertChannelStockInputs[0].GateID,
+				input.UpsertChannelStockInputs[0].ChannelID,
+				input.UpsertChannelStockInputs[0].Stock,
+				input.WarehouseID,
+				input.UpsertChannelStockInputs[1].SKU,
+				input.UpsertChannelStockInputs[1].GateID,
+				input.UpsertChannelStockInputs[1].ChannelID,
+				input.UpsertChannelStockInputs[1].Stock,
+				input.WarehouseID,
+				input.UpsertInventoryInputs[0].SKU,
+				input.UpsertInventoryInputs[1].SKU,
+				concatenateSKUGateIDChannelID(input.UpsertChannelStockInputs[0]),
+				concatenateSKUGateIDChannelID(input.UpsertChannelStockInputs[1]),
+				input.WarehouseID,
+				input.UpsertInventoryInputs[0].SKU,
+				input.UpsertInventoryInputs[0].Stock,
+				input.UpsertInventoryInputs[0].BufferStock,
+				input.WarehouseID,
+				input.UpsertInventoryInputs[1].SKU,
+				input.UpsertInventoryInputs[1].Stock,
+				input.UpsertInventoryInputs[1].BufferStock,
+			).
 			WillReturnError(errors.New("dummy-error"))
 
 		err := mockedRepository.UpsertStock(ctx, input, nil)
@@ -51,83 +69,35 @@ func TestUpsertStocks(t *testing.T) {
 		}
 	})
 
-	t.Run("With ExecContext queryUpsertChannelStock returns error", func(t *testing.T) {
-		mock.ExpectBegin()
+	t.Run("With ExecContext returns no error", func(t *testing.T) {
 		mock.
-			ExpectExec(queryUpsertInventory).
-			WithArgs(input.WarehouseID, input.UpsertInventoryInputs[0].SKU, input.UpsertInventoryInputs[0].Stock, input.UpsertInventoryInputs[0].BufferStock).
+			ExpectExec(query).
+			WithArgs(
+				input.WarehouseID,
+				input.UpsertChannelStockInputs[0].SKU,
+				input.UpsertChannelStockInputs[0].GateID,
+				input.UpsertChannelStockInputs[0].ChannelID,
+				input.UpsertChannelStockInputs[0].Stock,
+				input.WarehouseID,
+				input.UpsertChannelStockInputs[1].SKU,
+				input.UpsertChannelStockInputs[1].GateID,
+				input.UpsertChannelStockInputs[1].ChannelID,
+				input.UpsertChannelStockInputs[1].Stock,
+				input.WarehouseID,
+				input.UpsertInventoryInputs[0].SKU,
+				input.UpsertInventoryInputs[1].SKU,
+				concatenateSKUGateIDChannelID(input.UpsertChannelStockInputs[0]),
+				concatenateSKUGateIDChannelID(input.UpsertChannelStockInputs[1]),
+				input.WarehouseID,
+				input.UpsertInventoryInputs[0].SKU,
+				input.UpsertInventoryInputs[0].Stock,
+				input.UpsertInventoryInputs[0].BufferStock,
+				input.WarehouseID,
+				input.UpsertInventoryInputs[1].SKU,
+				input.UpsertInventoryInputs[1].Stock,
+				input.UpsertInventoryInputs[1].BufferStock,
+			).
 			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryUpsertChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].GateID, input.UpsertChannelStockInputs[0].ChannelID, input.UpsertChannelStockInputs[0].Stock).
-			WillReturnError(errors.New("dummy-error"))
-		mock.ExpectRollback()
-
-		err := mockedRepository.UpsertStock(ctx, input, nil)
-		if err == nil {
-			t.Error("error should be returned")
-		}
-	})
-
-	t.Run("With ExecContext queryDeleteChannelStock returns error", func(t *testing.T) {
-		mock.ExpectBegin()
-		mock.
-			ExpectExec(queryUpsertInventory).
-			WithArgs(input.WarehouseID, input.UpsertInventoryInputs[0].SKU, input.UpsertInventoryInputs[0].Stock, input.UpsertInventoryInputs[0].BufferStock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryUpsertChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].GateID, input.UpsertChannelStockInputs[0].ChannelID, input.UpsertChannelStockInputs[0].Stock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryDeleteChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].SKU+"#"+input.UpsertChannelStockInputs[0].GateID+"#"+input.UpsertChannelStockInputs[0].ChannelID).
-			WillReturnError(errors.New("dummy-error"))
-		mock.ExpectRollback()
-
-		err := mockedRepository.UpsertStock(ctx, input, nil)
-		if err == nil {
-			t.Error("error should be returned")
-		}
-	})
-
-	t.Run("With Commit returns error", func(t *testing.T) {
-		mock.ExpectBegin()
-		mock.
-			ExpectExec(queryUpsertInventory).
-			WithArgs(input.WarehouseID, input.UpsertInventoryInputs[0].SKU, input.UpsertInventoryInputs[0].Stock, input.UpsertInventoryInputs[0].BufferStock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryUpsertChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].GateID, input.UpsertChannelStockInputs[0].ChannelID, input.UpsertChannelStockInputs[0].Stock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryDeleteChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].SKU+"#"+input.UpsertChannelStockInputs[0].GateID+"#"+input.UpsertChannelStockInputs[0].ChannelID).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.ExpectCommit().WillReturnError(errors.New("dummy-error"))
-
-		err := mockedRepository.UpsertStock(ctx, input, nil)
-		if err == nil {
-			t.Error("error should be returned")
-		}
-	})
-
-	t.Run("With Commit returns no error", func(t *testing.T) {
-		mock.ExpectBegin()
-		mock.
-			ExpectExec(queryUpsertInventory).
-			WithArgs(input.WarehouseID, input.UpsertInventoryInputs[0].SKU, input.UpsertInventoryInputs[0].Stock, input.UpsertInventoryInputs[0].BufferStock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryUpsertChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].GateID, input.UpsertChannelStockInputs[0].ChannelID, input.UpsertChannelStockInputs[0].Stock).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.
-			ExpectExec(queryDeleteChannelStock).
-			WithArgs(input.WarehouseID, input.UpsertChannelStockInputs[0].SKU, input.UpsertChannelStockInputs[0].SKU+"#"+input.UpsertChannelStockInputs[0].GateID+"#"+input.UpsertChannelStockInputs[0].ChannelID).
-			WillReturnResult(sqlmock.NewResult(1, 1))
-		mock.ExpectCommit()
 
 		err := mockedRepository.UpsertStock(ctx, input, nil)
 		if err != nil {

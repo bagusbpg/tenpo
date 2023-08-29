@@ -3,103 +3,162 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
 func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStockDBInput, output *service.UpsertStockDBOutput) error {
-	queryUpsertInventory, argsUpsertInventory := buildUpsertInventoryQuery(input)
-	queryUpsertChannelStock, argsUpsertChannelStock := "", make([]interface{}, 0)
-	queryDeleteChannelStock, argsDeleteChannelStock := "", make([]interface{}, 0)
-	if len(input.UpsertChannelStockInputs) > 0 {
-		queryUpsertChannelStock, argsUpsertChannelStock = buildUpsertChannelStockQuery(input)
-		queryDeleteChannelStock, argsDeleteChannelStock = buildDeleteExcludedGateChannelStockQuery(input)
-	}
+	query, args := buildUpsertStocksQuery(input)
+	fmt.Printf("query: %v\n", query)
+	fmt.Printf("args: %v\n", args)
 
-	tx, err := ths.db.Begin()
-	if err != nil {
-		return fmt.Errorf("failed starting UpsertStock transaction: %s", err.Error())
-	}
-	defer tx.Rollback()
-
-	_, err = tx.ExecContext(ctx, queryUpsertInventory, argsUpsertInventory...)
+	_, err := ths.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed executing UpsertInventory query: %s", err.Error())
-	}
-
-	if len(input.UpsertChannelStockInputs) > 0 {
-		_, err = tx.ExecContext(ctx, queryUpsertChannelStock, argsUpsertChannelStock...)
-		if err != nil {
-			return fmt.Errorf("failed executing UpsertChannelStock query: %s", err.Error())
-		}
-
-		_, err = tx.ExecContext(ctx, queryDeleteChannelStock, argsDeleteChannelStock...)
-		if err != nil {
-			return fmt.Errorf("failed executing DeletedChannelStock query: %s", err.Error())
-		}
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return fmt.Errorf("failed committing UpsertStock transaction: %s", err.Error())
 	}
 
 	return nil
 }
 
-func buildUpsertInventoryQuery(input service.UpsertStockDBInput) (string, []interface{}) {
-	queryBuilder := sq.
-		Insert(`"temochi".inventory`).
-		Columns(
-			"warehouse_id",
-			"sku",
-			"stock",
-			"buffer_stock",
-		).
-		Suffix("ON CONFLICT ON CONSTRAINT inventory_pk DO UPDATE SET stock = EXCLUDED.stock, buffer_stock = EXCLUDED.buffer_stock, version = inventory.version + 1, updated_at = NOW()")
+func buildUpsertStocksQuery(input service.UpsertStockDBInput) (string, []interface{}) {
+	query := strings.Builder{}
+	args := make([]interface{}, 0)
 
-	for _, item := range input.UpsertInventoryInputs {
-		queryBuilder = queryBuilder.Values(input.WarehouseID, item.SKU, item.Stock, item.BufferStock)
+	if len(input.UpsertChannelStockInputs) > 0 {
+		query.WriteString(`
+			WITH upsert_channel_stock AS (
+				INSERT INTO "temochi".channel_stock
+					(
+						warehouse_id,
+						sku,
+						gate_id,
+						channel_id,
+						stock
+					)
+				VALUES
+		`)
+
+		for i := range input.UpsertChannelStockInputs {
+			query.WriteString(`( `)
+
+			args = append(args, input.WarehouseID)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertChannelStockInputs[i].SKU)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertChannelStockInputs[i].GateID)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertChannelStockInputs[i].ChannelID)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertChannelStockInputs[i].Stock)
+			query.WriteString(`$` + strconv.Itoa(len(args)))
+
+			query.WriteString(` )`)
+
+			if i < len(input.UpsertChannelStockInputs)-1 {
+				query.WriteString(`, `)
+			} else {
+				query.WriteString(` `)
+			}
+		}
+
+		query.WriteString(`
+				ON CONFLICT ON CONSTRAINT channel_stock_pk
+				DO
+					UPDATE SET
+						stock = EXCLUDED.stock,
+						version = channel_stock.version + 1,
+						updated_at = NOW()
+			),
+		`)
+
+		query.WriteString(`
+			delete_related_channel_stocks AS (
+				DELETE FROM "temochi".channel_stock
+				WHERE
+		`)
+
+		args = append(args, input.WarehouseID)
+		query.WriteString(`warehouse_id = $` + strconv.Itoa(len(args)) + ` `)
+
+		query.WriteString(`AND sku IN (`)
+		for i := range input.UpsertInventoryInputs {
+			args = append(args, input.UpsertChannelStockInputs[i].SKU)
+			query.WriteString(`$` + strconv.Itoa(len(args)))
+			if i < len(input.UpsertInventoryInputs)-1 {
+				query.WriteString(`, `)
+			} else {
+				query.WriteString(`) `)
+			}
+		}
+
+		query.WriteString(`AND CONCAT (sku, '#', gate_id, '#', channel_id) NOT IN (`)
+		for i := range input.UpsertChannelStockInputs {
+			args = append(args, concatenateSKUGateIDChannelID(input.UpsertChannelStockInputs[i]))
+			query.WriteString(`$` + strconv.Itoa(len(args)))
+			if i < len(input.UpsertChannelStockInputs)-1 {
+				query.WriteString(`, `)
+			} else {
+				query.WriteString(`) `)
+			}
+		}
+		query.WriteString(`
+			)
+		`)
+
+		query.WriteString(`
+			INSERT INTO "temochi".inventory (
+				warehouse_id,
+				sku,
+				stock,
+				buffer_stock
+			)
+			VALUES
+		`)
+
+		for i := range input.UpsertInventoryInputs {
+			query.WriteString(`( `)
+
+			args = append(args, input.WarehouseID)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertInventoryInputs[i].SKU)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertInventoryInputs[i].Stock)
+			query.WriteString(`$` + strconv.Itoa(len(args)) + `, `)
+
+			args = append(args, input.UpsertInventoryInputs[i].BufferStock)
+			query.WriteString(`$` + strconv.Itoa(len(args)))
+
+			query.WriteString(` )`)
+
+			if i < len(input.UpsertInventoryInputs)-1 {
+				query.WriteString(`, `)
+			} else {
+				query.WriteString(` `)
+			}
+		}
+
+		query.WriteString(`
+			ON CONFLICT ON CONSTRAINT inventory_pk
+			DO
+				UPDATE SET
+					stock = EXCLUDED.stock,
+					buffer_stock = EXCLUDED.buffer_stock,
+					version = inventory.version + 1,
+					updated_at = NOW()
+		`)
 	}
 
-	return queryBuilder.PlaceholderFormat(sq.Dollar).MustSql()
+	return whitespaceNormalizer.ReplaceAllString(query.String(), " "), args
 }
 
-func buildUpsertChannelStockQuery(input service.UpsertStockDBInput) (string, []interface{}) {
-	queryBuilder := sq.
-		Insert(`"temochi".channel_stock`).
-		Columns(
-			"warehouse_id",
-			"sku",
-			"gate_id",
-			"channel_id",
-			"stock",
-		).
-		Suffix("ON CONFLICT ON CONSTRAINT channel_stock_pk DO UPDATE SET stock = EXCLUDED.stock, version = channel_stock.version + 1, updated_at = NOW()")
-
-	for _, item := range input.UpsertChannelStockInputs {
-		queryBuilder = queryBuilder.Values(input.WarehouseID, item.SKU, item.GateID, item.ChannelID, item.Stock)
-	}
-
-	return queryBuilder.PlaceholderFormat(sq.Dollar).MustSql()
-}
-
-func buildDeleteExcludedGateChannelStockQuery(input service.UpsertStockDBInput) (string, []interface{}) {
-	excludedGateChannel := make([]string, 0, len(input.UpsertChannelStockInputs))
-	skus := make([]string, 0, len(input.UpsertChannelStockInputs))
-	for _, item := range input.UpsertChannelStockInputs {
-		excludedGateChannel = append(excludedGateChannel, item.SKU+"#"+item.GateID+"#"+item.ChannelID)
-		skus = append(skus, item.SKU)
-	}
-
-	queryBuilder := sq.
-		Delete(`"temochi".channel_stock`).
-		Where(sq.And{
-			sq.Eq{"warehouse_id": input.WarehouseID},
-			sq.Eq{"sku": skus},
-			sq.NotEq{"CONCAT(sku, '#', gate_id, '#', channel_id)": excludedGateChannel},
-		})
-
-	return queryBuilder.PlaceholderFormat(sq.Dollar).MustSql()
+func concatenateSKUGateIDChannelID(item service.UpsertChannelStockInput) string {
+	return item.SKU + "#" + item.GateID + "#" + item.ChannelID
 }

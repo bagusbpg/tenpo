@@ -28,7 +28,7 @@ func TestGetStocks(t *testing.T) {
 	output := []service.StockDB{{Inventory: temochi.Inventory{WarehouseID: input.WarehouseID}}}
 	outputByte, _ := json.Marshal(output)
 
-	query, _ := buildGetStocksQuery(ctx, input)
+	query, _ := buildGetStocksQuery(input)
 
 	t.Run("With ExecContext returns error", func(t *testing.T) {
 		mock.
