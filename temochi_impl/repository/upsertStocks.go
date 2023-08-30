@@ -11,8 +11,6 @@ import (
 
 func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStockDBInput, output *service.UpsertStockDBOutput) error {
 	query, args := buildUpsertStocksQuery(input)
-	fmt.Printf("query: %v\n", query)
-	fmt.Printf("args: %v\n", args)
 
 	_, err := ths.db.ExecContext(ctx, query, args...)
 	if err != nil {
