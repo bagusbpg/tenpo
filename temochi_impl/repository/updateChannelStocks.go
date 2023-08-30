@@ -27,7 +27,7 @@ SET stock = inventory.stock + $1,
 		END,
 	version = inventory.version + 1,
 	updated_at = NOW()
-WHERE warehouse_id = $2 and sku = $3`
+WHERE warehouse_id = $2 AND sku = $3`
 
 const UPDATE_RELATED_CHANNEL_STOCK_QUERY = `
 UPDATE "temochi".channel_stock
