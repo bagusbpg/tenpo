@@ -21,6 +21,7 @@ func (ths *service) GetStocks(ctx context.Context, req temochi.GetStocksReq, res
 		return fmt.Errorf("failed at repository.GetStocks: %s", err.Error())
 	}
 
+	res.Stocks = make([]temochi.Stock, 0)
 	for _, stock := range output.Stocks {
 		res.Stocks = append(res.Stocks, temochi.Stock{
 			Inventory:     stock.Inventory,
