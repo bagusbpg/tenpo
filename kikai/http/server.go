@@ -114,7 +114,7 @@ func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
 				r = r.WithContext(ctx)
 			}
 			slog.LogAttrs(
-				context.Background(),
+				r.Context(),
 				slog.LevelInfo, "receiving http request",
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.String()),
