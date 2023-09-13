@@ -2,84 +2,51 @@ package handler
 
 import (
 	"encoding/json"
-	"log/slog"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
-	tenpoHttp "github.com/bagusbpg/tenpo/kikai/http"
+	tenpoLog "github.com/bagusbpg/tenpo/kikai/log"
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
 func (ths *handler) DeleteChannelStock() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestID, ok := r.Context().Value(tenpoHttp.REQUEST_ID_CONTEXT_KEY).(string)
-		if !ok {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelWarn, "request has no requestID",
-			)
-		}
-
 		var req temochi.DeleteChannelStockReq
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at DeleteChannelStock",
-				slog.String("causedBy", "failed reading request body: "+err.Error()),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
-			http.Error(w, "failed reading request body: "+err.Error(), http.StatusBadRequest)
+			err = fmt.Errorf("failed reading request body: %v", err)
+			tenpoLog.Error(r, "failed at DeletedChannelStock", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
 
 		err = ths.validator.StructCtx(r.Context(), req)
 		if err != nil {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at DeleteChannelStock",
-				slog.String("causedBy", "failed validating request body: "+err.Error()),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
-			http.Error(w, "failed validating request body: "+err.Error(), http.StatusBadRequest)
+			err = fmt.Errorf("failed validating request body: %v", err)
+			tenpoLog.Error(r, "failed at DeletedChannelStock", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if strings.TrimPrefix(r.URL.Path, "/stocks/") != req.WarehouseID {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at DeleteChannelStock",
-				slog.String("causedBy", "warehouse_id mismatch"),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
+			err = errors.New("warehouse_id mismatch")
+			tenpoLog.Error(r, "failed at DeletedChannelStock", err)
 			http.Error(w, "warehouse_id mismatch", http.StatusForbidden)
 			return
 		}
 
 		err = ths.service.DeleteChannelStock(r.Context(), req, nil)
 		if err != nil {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at DeleteChannelStock",
-				slog.String("causedBy", "failed at service.DeleteChannelStock: "+err.Error()),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
-			http.Error(w, "failed at service.DeleteChannelStock :"+err.Error(), http.StatusInternalServerError)
+			err = fmt.Errorf("failed at service.DeleteChannelStock: %v", err)
+			tenpoLog.Error(r, "failed at DeletedChannelStock", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)
-		slog.LogAttrs(
-			r.Context(),
-			slog.LevelInfo, "success processing request",
-			slog.String("handler", "DeleteChannelStock"),
-			slog.String("path", r.URL.Path),
-			slog.String("requestID", requestID),
-		)
+		tenpoLog.Success(r, "success processing request", "DeleteChannelStock")
 	}
 }

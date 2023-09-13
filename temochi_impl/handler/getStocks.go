@@ -2,39 +2,26 @@ package handler
 
 import (
 	"encoding/json"
-	"log/slog"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
-	tenpoHttp "github.com/bagusbpg/tenpo/kikai/http"
+	tenpoLog "github.com/bagusbpg/tenpo/kikai/log"
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
 func (ths *handler) GetStocks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestID, ok := r.Context().Value(tenpoHttp.REQUEST_ID_CONTEXT_KEY).(string)
-		if !ok {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelWarn, "request has no requestID",
-			)
-		}
-
 		// error from QueryUnescape is ignored since it will
 		// cause ParseQuery returns error anyway
 		unescapedQuery, _ := url.QueryUnescape(r.URL.RawQuery)
 
 		query, err := url.ParseQuery(unescapedQuery)
 		if err != nil {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at GetStocks",
-				slog.String("causedBy", "failed parsing query: "+err.Error()),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
-			http.Error(w, "failed parsing query: "+err.Error(), http.StatusBadRequest)
+			err = fmt.Errorf("failed parsing query: %v", err)
+			tenpoLog.Error(r, "failed at GetStocks", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -46,14 +33,9 @@ func (ths *handler) GetStocks() http.HandlerFunc {
 		var res temochi.GetStocksRes
 		err = ths.service.GetStocks(r.Context(), req, &res)
 		if err != nil {
-			slog.LogAttrs(
-				r.Context(),
-				slog.LevelError, "failed at GetStocks",
-				slog.String("causedBy", "failed at service.GetStocks: "+err.Error()),
-				slog.String("path", r.URL.Path),
-				slog.String("requestID", requestID),
-			)
-			http.Error(w, "failed at service.GetStocks: "+err.Error(), http.StatusInternalServerError)
+			err = fmt.Errorf("failed at service.GetStocks: %v", err)
+			tenpoLog.Error(r, "failed at GetStocks", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -61,12 +43,6 @@ func (ths *handler) GetStocks() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"data": res,
 		})
-		slog.LogAttrs(
-			r.Context(),
-			slog.LevelInfo, "success processing request",
-			slog.String("handler", "GetStocks"),
-			slog.String("path", r.URL.Path),
-			slog.String("requestID", requestID),
-		)
+		tenpoLog.Success(r, "success processing request", "GetStocks")
 	}
 }
