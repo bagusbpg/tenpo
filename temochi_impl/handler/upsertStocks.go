@@ -17,7 +17,7 @@ func (ths *handler) UpsertStocks() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			err = fmt.Errorf("failed reading request body: %v", err)
-			tenpoLog.Error(r, "failed at UpsertStocks", err)
+			tenpoLog.Error(r, "UpsertStocks", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -26,14 +26,14 @@ func (ths *handler) UpsertStocks() http.HandlerFunc {
 		err = ths.validator.StructCtx(r.Context(), req)
 		if err != nil {
 			err = fmt.Errorf("failed validating request body: %v", err)
-			tenpoLog.Error(r, "failed at UpsertStocks", err)
+			tenpoLog.Error(r, "UpsertStocks", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if strings.TrimPrefix(r.URL.Path, "/stocks/") != req.WarehouseID {
 			err = errors.New("warehouse_id mismatch")
-			tenpoLog.Error(r, "failed at UpsertStocks", err)
+			tenpoLog.Error(r, "UpsertStocks", err)
 			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
@@ -42,7 +42,7 @@ func (ths *handler) UpsertStocks() http.HandlerFunc {
 		err = ths.service.UpsertStocks(r.Context(), req, &res)
 		if err != nil {
 			err = fmt.Errorf("failed at service.UpsertStocks: %v", err)
-			tenpoLog.Error(r, "failed at UpsertStocks", err)
+			tenpoLog.Error(r, "UpsertStocks", err)
 
 			if strings.Contains(err.Error(), "failed validating channel stock") {
 				w.WriteHeader(http.StatusBadRequest)
@@ -63,6 +63,6 @@ func (ths *handler) UpsertStocks() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"data": res,
 		})
-		tenpoLog.Success(r, "success processing request", "UpsertStocks")
+		tenpoLog.Success(r, "UpsertStocks")
 	}
 }
