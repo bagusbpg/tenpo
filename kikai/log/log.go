@@ -2,27 +2,27 @@ package log
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	tenpoHttp "github.com/bagusbpg/tenpo/kikai/http"
 )
 
-func Error(r *http.Request, errMessage string, cause error) {
+func Error(r *http.Request, handler string, cause error) {
 	slog.LogAttrs(
 		r.Context(),
-		slog.LevelError, errMessage,
+		slog.LevelError, fmt.Sprintf("failed processing request at %s", handler),
 		slog.String("causedBy", cause.Error()),
 		slog.String("path", r.URL.Path),
 		slog.String("requestID", getRequestID(r.Context())),
 	)
 }
 
-func Success(r *http.Request, successInfo string, handler string) {
+func Success(r *http.Request, handler string) {
 	slog.LogAttrs(
 		r.Context(),
-		slog.LevelInfo, successInfo,
-		slog.String("handler", handler),
+		slog.LevelInfo, fmt.Sprintf("success processing request at %s", handler),
 		slog.String("path", r.URL.Path),
 		slog.String("requestID", getRequestID(r.Context())),
 	)
