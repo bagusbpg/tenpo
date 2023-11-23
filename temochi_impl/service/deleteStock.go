@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/bagusbpg/tenpo/temochi"
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
 func (ths *service) DeleteStock(ctx context.Context, req temochi.DeleteStockReq, res *temochi.DeleteStockRes) error {
-	input := DeleteStockDBInput{
+	input := repository.DeleteStockDBInput{
 		WarehouseID: req.WarehouseID,
 		SKU:         req.SKU,
 	}

@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,7 +36,7 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // DeleteChannelStock mocks base method.
-func (m *MockRepository) DeleteChannelStock(ctx context.Context, input DeleteChannelStockDBInput, output *DeleteChannelStockDBOutput) error {
+func (m *MockRepository) DeleteChannelStock(ctx context.Context, input repository.DeleteChannelStockDBInput, output *repository.DeleteChannelStockDBOutput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteChannelStock", ctx, input, output)
 	ret0, _ := ret[0].(error)
@@ -49,7 +50,7 @@ func (mr *MockRepositoryMockRecorder) DeleteChannelStock(ctx, input, output inte
 }
 
 // DeleteStock mocks base method.
-func (m *MockRepository) DeleteStock(ctx context.Context, input DeleteStockDBInput, output *DeleteStockDBOutput) error {
+func (m *MockRepository) DeleteStock(ctx context.Context, input repository.DeleteStockDBInput, output *repository.DeleteStockDBOutput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteStock", ctx, input, output)
 	ret0, _ := ret[0].(error)
@@ -63,7 +64,7 @@ func (mr *MockRepositoryMockRecorder) DeleteStock(ctx, input, output interface{}
 }
 
 // GetStocks mocks base method.
-func (m *MockRepository) GetStocks(ctx context.Context, input GetStocksDBInput, output *GetStocksDBOutput) error {
+func (m *MockRepository) GetStocks(ctx context.Context, input repository.GetStocksDBInput, output *repository.GetStocksDBOutput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStocks", ctx, input, output)
 	ret0, _ := ret[0].(error)
@@ -77,7 +78,7 @@ func (mr *MockRepositoryMockRecorder) GetStocks(ctx, input, output interface{}) 
 }
 
 // UpdateChannelStocks mocks base method.
-func (m *MockRepository) UpdateChannelStocks(ctx context.Context, input UpdateChannelStocksDBInput, output *UpdateChannelStocksDBOutput) error {
+func (m *MockRepository) UpdateChannelStocks(ctx context.Context, input repository.UpdateChannelStocksDBInput, output *repository.UpdateChannelStocksDBOutput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateChannelStocks", ctx, input, output)
 	ret0, _ := ret[0].(error)
@@ -91,7 +92,7 @@ func (mr *MockRepositoryMockRecorder) UpdateChannelStocks(ctx, input, output int
 }
 
 // UpsertStock mocks base method.
-func (m *MockRepository) UpsertStock(ctx context.Context, input UpsertStockDBInput, output *UpsertStockDBOutput) error {
+func (m *MockRepository) UpsertStock(ctx context.Context, input repository.UpsertStockDBInput, output *repository.UpsertStockDBOutput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpsertStock", ctx, input, output)
 	ret0, _ := ret[0].(error)

@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bagusbpg/tenpo/temochi"
-	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
 func TestGetStocks(t *testing.T) {
@@ -21,11 +20,11 @@ func TestGetStocks(t *testing.T) {
 	mockedRepository := New(db)
 
 	ctx := context.TODO()
-	input := service.GetStocksDBInput{
+	input := GetStocksDBInput{
 		WarehouseID: "dummy-warehouse-id",
 		SKUs:        []string{"dummy-sku-1", "dummy-sku-2"},
 	}
-	output := []service.StockDB{{Inventory: temochi.Inventory{WarehouseID: input.WarehouseID}}}
+	output := []StockDB{{Inventory: temochi.Inventory{WarehouseID: input.WarehouseID}}}
 	outputByte, _ := json.Marshal(output)
 
 	query, _ := buildGetStocksQuery(input)
@@ -65,7 +64,7 @@ func TestGetStocks(t *testing.T) {
 				WithArgs(input.WarehouseID, input.SKUs[0], input.SKUs[1], input.WarehouseID, input.SKUs[0], input.SKUs[1]).
 				WillReturnRows(invalidJSONRows)
 
-			output := new(service.GetStocksDBOutput)
+			output := new(GetStocksDBOutput)
 			err := mockedRepository.GetStocks(ctx, input, output)
 			if err == nil {
 				t.Error("error should be returned")
@@ -80,7 +79,7 @@ func TestGetStocks(t *testing.T) {
 				WithArgs(input.WarehouseID, input.SKUs[0], input.SKUs[1], input.WarehouseID, input.SKUs[0], input.SKUs[1]).
 				WillReturnRows(validJSONRows)
 
-			output := new(service.GetStocksDBOutput)
+			output := new(GetStocksDBOutput)
 			err := mockedRepository.GetStocks(ctx, input, output)
 			if err != nil {
 				t.Error("nil should be returned")

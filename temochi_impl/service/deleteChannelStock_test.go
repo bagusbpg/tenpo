@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/bagusbpg/tenpo/temochi"
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 	"github.com/golang/mock/gomock"
 )
 
@@ -20,7 +21,7 @@ func TestDeleteChannelStock(t *testing.T) {
 		GateID:      "dummy-gate-id",
 		ChannelID:   "dummy-channel-id",
 	}
-	input := DeleteChannelStockDBInput{
+	input := repository.DeleteChannelStockDBInput{
 		WarehouseID: "dummy-warehouse-id",
 		GateID:      "dummy-gate-id",
 		ChannelID:   "dummy-channel-id",

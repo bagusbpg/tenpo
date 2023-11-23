@@ -8,10 +8,24 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bagusbpg/tenpo/temochi_impl/service"
+	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *repository) GetStocks(ctx context.Context, input service.GetStocksDBInput, output *service.GetStocksDBOutput) error {
+type GetStocksDBInput struct {
+	WarehouseID string
+	SKUs        []string
+}
+
+type GetStocksDBOutput struct {
+	Stocks []StockDB
+}
+
+type StockDB struct {
+	temochi.Inventory
+	ChannelStocks []temochi.ChannelStock `json:"channelStocks"`
+}
+
+func (ths *repository) GetStocks(ctx context.Context, input GetStocksDBInput, output *GetStocksDBOutput) error {
 	query, args := buildGetStocksQuery(input)
 
 	var res sql.NullString
@@ -32,7 +46,7 @@ func (ths *repository) GetStocks(ctx context.Context, input service.GetStocksDBI
 	return nil
 }
 
-func buildGetStocksQuery(input service.GetStocksDBInput) (string, []interface{}) {
+func buildGetStocksQuery(input GetStocksDBInput) (string, []interface{}) {
 	query := strings.Builder{}
 	args := make([]interface{}, 0)
 
@@ -53,7 +67,7 @@ func buildGetStocksQuery(input service.GetStocksDBInput) (string, []interface{})
 	return whitespaceNormalizer.ReplaceAllString(query.String(), " "), args
 }
 
-func buildGetChannelStocksQuery(input service.GetStocksDBInput, args *[]interface{}) string {
+func buildGetChannelStocksQuery(input GetStocksDBInput, args *[]interface{}) string {
 	query := strings.Builder{}
 
 	query.WriteString(`
@@ -99,7 +113,7 @@ func buildGetChannelStocksQuery(input service.GetStocksDBInput, args *[]interfac
 	return query.String()
 }
 
-func buildResultQuery(input service.GetStocksDBInput, args *[]interface{}) string {
+func buildResultQuery(input GetStocksDBInput, args *[]interface{}) string {
 	query := strings.Builder{}
 
 	query.WriteString(`

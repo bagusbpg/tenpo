@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/bagusbpg/tenpo/temochi"
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
 func (ths *service) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq, res *temochi.UpsertStocksRes) error {
@@ -31,19 +32,19 @@ func (ths *service) UpsertStocks(ctx context.Context, req temochi.UpsertStocksRe
 	return nil
 }
 
-func constructUpsertStockInput(req temochi.UpsertStocksReq) (UpsertStockDBInput, []temochi.FailedUpsertStockSpec) {
-	input := UpsertStockDBInput{WarehouseID: req.WarehouseID}
+func constructUpsertStockInput(req temochi.UpsertStocksReq) (repository.UpsertStockDBInput, []temochi.FailedUpsertStockSpec) {
+	input := repository.UpsertStockDBInput{WarehouseID: req.WarehouseID}
 	failedSpecs := make([]temochi.FailedUpsertStockSpec, 0, 10)
 	for i := range req.UpsertStockSpecs {
 		if valid, message := validateChannelStock(req.UpsertStockSpecs[i]); valid {
-			inventoryInput := UpsertInventoryInput{
+			inventoryInput := repository.UpsertInventoryInput{
 				SKU:         req.UpsertStockSpecs[i].SKU,
 				Stock:       req.UpsertStockSpecs[i].Stock,
 				BufferStock: req.UpsertStockSpecs[i].BufferStock,
 			}
-			upsertChannelStockInputs := make([]UpsertChannelStockInput, 0, 10)
+			upsertChannelStockInputs := make([]repository.UpsertChannelStockInput, 0, 10)
 			for j := range req.UpsertStockSpecs[i].ChannelStockSpecs {
-				upsertChannelStockInputs = append(upsertChannelStockInputs, UpsertChannelStockInput{
+				upsertChannelStockInputs = append(upsertChannelStockInputs, repository.UpsertChannelStockInput{
 					SKU:       req.UpsertStockSpecs[i].SKU,
 					GateID:    req.UpsertStockSpecs[i].ChannelStockSpecs[j].GateID,
 					ChannelID: req.UpsertStockSpecs[i].ChannelStockSpecs[j].ChannelID,
@@ -72,7 +73,7 @@ func validateChannelStock(spec temochi.UpsertStockSpec) (bool, string) {
 	return true, ""
 }
 
-func constructFailedSpecsFromInputDB(input UpsertStockDBInput) []temochi.FailedUpsertStockSpec {
+func constructFailedSpecsFromInputDB(input repository.UpsertStockDBInput) []temochi.FailedUpsertStockSpec {
 	failedSpecs := make([]temochi.FailedUpsertStockSpec, 0, 10)
 	for i := range input.UpsertInventoryInputs {
 		failedSpecs = append(failedSpecs, temochi.FailedUpsertStockSpec{

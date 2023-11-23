@@ -5,11 +5,30 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/bagusbpg/tenpo/temochi_impl/service"
 )
 
-func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStockDBInput, output *service.UpsertStockDBOutput) error {
+type UpsertStockDBInput struct {
+	WarehouseID              string
+	UpsertInventoryInputs    []UpsertInventoryInput
+	UpsertChannelStockInputs []UpsertChannelStockInput
+}
+
+type UpsertInventoryInput struct {
+	SKU         string
+	Stock       uint32
+	BufferStock uint32
+}
+
+type UpsertChannelStockInput struct {
+	SKU       string
+	GateID    string
+	ChannelID string
+	Stock     uint32
+}
+
+type UpsertStockDBOutput struct{}
+
+func (ths *repository) UpsertStock(ctx context.Context, input UpsertStockDBInput, output *UpsertStockDBOutput) error {
 	query, args := buildUpsertStocksQuery(input)
 
 	_, err := ths.db.ExecContext(ctx, query, args...)
@@ -20,7 +39,7 @@ func (ths *repository) UpsertStock(ctx context.Context, input service.UpsertStoc
 	return nil
 }
 
-func buildUpsertStocksQuery(input service.UpsertStockDBInput) (string, []interface{}) {
+func buildUpsertStocksQuery(input UpsertStockDBInput) (string, []interface{}) {
 	query := strings.Builder{}
 	args := make([]interface{}, 0)
 
@@ -42,7 +61,7 @@ func buildUpsertStocksQuery(input service.UpsertStockDBInput) (string, []interfa
 	return whitespaceNormalizer.ReplaceAllString(query.String(), " "), args
 }
 
-func buildUpsertChannelStocksQuery(input service.UpsertStockDBInput, args *[]interface{}) string {
+func buildUpsertChannelStocksQuery(input UpsertStockDBInput, args *[]interface{}) string {
 	query := strings.Builder{}
 
 	query.WriteString(`
@@ -96,7 +115,7 @@ func buildUpsertChannelStocksQuery(input service.UpsertStockDBInput, args *[]int
 	return query.String()
 }
 
-func buildDeleteRelatedChannelStocksQuery(input service.UpsertStockDBInput, args *[]interface{}, deleteAll bool) string {
+func buildDeleteRelatedChannelStocksQuery(input UpsertStockDBInput, args *[]interface{}, deleteAll bool) string {
 	query := strings.Builder{}
 
 	query.WriteString(`
@@ -136,7 +155,7 @@ func buildDeleteRelatedChannelStocksQuery(input service.UpsertStockDBInput, args
 	return query.String()
 }
 
-func buildUpsertInventoryQuery(input service.UpsertStockDBInput, args *[]interface{}) string {
+func buildUpsertInventoryQuery(input UpsertStockDBInput, args *[]interface{}) string {
 	query := strings.Builder{}
 
 	query.WriteString(`
@@ -186,6 +205,6 @@ func buildUpsertInventoryQuery(input service.UpsertStockDBInput, args *[]interfa
 	return query.String()
 }
 
-func concatenateSKUGateIDChannelID(item service.UpsertChannelStockInput) string {
+func concatenateSKUGateIDChannelID(item UpsertChannelStockInput) string {
 	return item.SKU + "#" + item.GateID + "#" + item.ChannelID
 }

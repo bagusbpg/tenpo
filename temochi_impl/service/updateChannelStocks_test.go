@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/bagusbpg/tenpo/temochi"
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 	"github.com/golang/mock/gomock"
 )
 
@@ -28,9 +29,9 @@ func TestUpdateChannelStocks(t *testing.T) {
 			},
 		},
 	}
-	input := UpdateChannelStocksDBInput{
+	input := repository.UpdateChannelStocksDBInput{
 		WarehouseID: req.WarehouseID,
-		UpdateChannelStockInputs: []UpdateChannelStockInput{
+		UpdateChannelStockInputs: []repository.UpdateChannelStockInput{
 			{
 				SKU:       req.UpdateChannelStockSpecs[0].SKU,
 				GateID:    req.UpdateChannelStockSpecs[0].GateID,

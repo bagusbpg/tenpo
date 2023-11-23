@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/bagusbpg/tenpo/temochi"
+	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 	"github.com/golang/mock/gomock"
 )
 
@@ -19,7 +20,7 @@ func TestDeleteStock(t *testing.T) {
 		WarehouseID: "dummy-warehouse-id",
 		SKU:         "dummy-sku",
 	}
-	input := DeleteStockDBInput{
+	input := repository.DeleteStockDBInput{
 		WarehouseID: "dummy-warehouse-id",
 		SKU:         "dummy-sku",
 	}
