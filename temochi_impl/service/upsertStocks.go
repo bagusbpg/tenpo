@@ -8,7 +8,7 @@ import (
 	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
-func (ths *service) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq, res *temochi.UpsertStocksRes) error {
+func (ths service) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq, res *temochi.UpsertStocksRes) error {
 	input, failedSpecs := constructUpsertStockInput(req)
 	if len(failedSpecs) > 0 {
 		*res = temochi.UpsertStocksRes{

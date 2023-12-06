@@ -25,7 +25,7 @@ type StockDB struct {
 	ChannelStocks []temochi.ChannelStock `json:"channelStocks"`
 }
 
-func (ths *repository) GetStocks(ctx context.Context, input GetStocksDBInput, output *GetStocksDBOutput) error {
+func (ths repository) GetStocks(ctx context.Context, input GetStocksDBInput, output *GetStocksDBOutput) error {
 	query, args := buildGetStocksQuery(input)
 
 	var res sql.NullString

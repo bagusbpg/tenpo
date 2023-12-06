@@ -8,7 +8,7 @@ import (
 	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
-func (ths *service) GetStocks(ctx context.Context, req temochi.GetStocksReq, res *temochi.GetStocksRes) error {
+func (ths service) GetStocks(ctx context.Context, req temochi.GetStocksReq, res *temochi.GetStocksRes) error {
 	if len(req.SKUs) == 0 {
 		return nil
 	}

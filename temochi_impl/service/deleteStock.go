@@ -8,7 +8,7 @@ import (
 	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
-func (ths *service) DeleteStock(ctx context.Context, req temochi.DeleteStockReq, res *temochi.DeleteStockRes) error {
+func (ths service) DeleteStock(ctx context.Context, req temochi.DeleteStockReq, res *temochi.DeleteStockRes) error {
 	input := repository.DeleteStockDBInput{
 		WarehouseID: req.WarehouseID,
 		SKU:         req.SKU,

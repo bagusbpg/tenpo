@@ -48,7 +48,7 @@ SET stock = channel_stock.stock + $1,
 	updated_at = NOW()
 WHERE warehouse_id = $2 AND sku = $3 AND (gate_id <> $4 OR channel_id <> $5)`
 
-func (ths *repository) UpdateChannelStocks(ctx context.Context, input UpdateChannelStocksDBInput, output *UpdateChannelStocksDBOutput) error {
+func (ths repository) UpdateChannelStocks(ctx context.Context, input UpdateChannelStocksDBInput, output *UpdateChannelStocksDBOutput) error {
 	tx, err := ths.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed starting UpdateChannelStocks transaction: %s", err.Error())

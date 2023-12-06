@@ -11,7 +11,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *handler) UpsertStocks() http.HandlerFunc {
+func (ths handler) UpsertStocks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req temochi.UpsertStocksReq
 		err := json.NewDecoder(r.Body).Decode(&req)

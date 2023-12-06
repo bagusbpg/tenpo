@@ -11,7 +11,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *handler) DeleteChannelStock() http.HandlerFunc {
+func (ths handler) DeleteChannelStock() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req temochi.DeleteChannelStockReq
 		err := json.NewDecoder(r.Body).Decode(&req)

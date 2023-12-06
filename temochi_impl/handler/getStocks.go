@@ -11,7 +11,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *handler) GetStocks() http.HandlerFunc {
+func (ths handler) GetStocks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// error from QueryUnescape is ignored since it will
 		// cause ParseQuery returns error anyway

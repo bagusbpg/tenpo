@@ -9,7 +9,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *handler) DeleteStock() http.HandlerFunc {
+func (ths handler) DeleteStock() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := strings.Split(strings.TrimPrefix(r.URL.Path, "/stocks/"), "/")
 		req := temochi.DeleteStockReq{

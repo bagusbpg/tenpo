@@ -8,7 +8,7 @@ import (
 	repository "github.com/bagusbpg/tenpo/temochi_impl/repository"
 )
 
-func (ths *service) UpdateChannelStocks(ctx context.Context, req temochi.UpdateChannelStocksReq, res *temochi.UpdateChannelStocksRes) error {
+func (ths service) UpdateChannelStocks(ctx context.Context, req temochi.UpdateChannelStocksReq, res *temochi.UpdateChannelStocksRes) error {
 	input := repository.UpdateChannelStocksDBInput{WarehouseID: req.WarehouseID}
 	for i := range req.UpdateChannelStockSpecs {
 		input.UpdateChannelStockInputs = append(input.UpdateChannelStockInputs, repository.UpdateChannelStockInput{

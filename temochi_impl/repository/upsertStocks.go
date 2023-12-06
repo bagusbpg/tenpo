@@ -28,7 +28,7 @@ type UpsertChannelStockInput struct {
 
 type UpsertStockDBOutput struct{}
 
-func (ths *repository) UpsertStock(ctx context.Context, input UpsertStockDBInput, output *UpsertStockDBOutput) error {
+func (ths repository) UpsertStock(ctx context.Context, input UpsertStockDBInput, output *UpsertStockDBOutput) error {
 	query, args := buildUpsertStocksQuery(input)
 
 	_, err := ths.db.ExecContext(ctx, query, args...)

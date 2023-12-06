@@ -11,7 +11,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *handler) UpdateChannelStocks() http.HandlerFunc {
+func (ths handler) UpdateChannelStocks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req temochi.UpdateChannelStocksReq
 		err := json.NewDecoder(r.Body).Decode(&req)
