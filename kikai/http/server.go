@@ -106,15 +106,17 @@ func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
 		return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			w.Header().Set("Content-Type", "application/json")
 
-			ctx := r.Context()
+			ctx := context.WithValue(r.Context(), REQUEST_PATH_CONTEXT_KEY, r.URL.String())
+			ctx = context.WithValue(ctx, REQUEST_METHOD_CONTEXT_KEY, r.Method)
+			ctx = context.WithValue(ctx, REQUEST_HANDLER_CONTEXT_KEY, handlerName)
 			requestID, ok := ctx.Value(REQUEST_ID_CONTEXT_KEY).(string)
 			if !ok {
 				requestID = uuid.New().String()
 				ctx = context.WithValue(ctx, REQUEST_ID_CONTEXT_KEY, requestID)
-				r = r.WithContext(ctx)
 			}
+			r = r.WithContext(ctx)
 			slog.LogAttrs(
-				r.Context(),
+				ctx,
 				slog.LevelInfo, "receiving http request",
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.String()),
