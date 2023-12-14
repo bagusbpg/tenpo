@@ -33,11 +33,11 @@ func (ths *Component) New(appConfig interface{}) error {
 	validator := validator.New()
 	handler := handler.New(service, validator)
 
-	ths.server.AddRoute(http.MethodGet, temochi.PATH_GET_STOCKS, handler.GetStocks())
-	ths.server.AddRoute(http.MethodPost, temochi.PATH_UPSERT_STOCKS, handler.UpsertStocks())
-	ths.server.AddRoute(http.MethodPut, temochi.PATH_UPDATE_CHANNELS_STOCK, handler.UpdateChannelStocks())
-	ths.server.AddRoute(http.MethodPatch, temochi.PATH_DELETE_CHANNEL_STOCK, handler.DeleteChannelStock())
-	ths.server.AddRoute(http.MethodDelete, temochi.PATH_DELETE_STOCK, handler.DeleteStock())
+	ths.server.AddRoute(http.MethodGet, temochi.PATH_GET_STOCKS, "GetStocks", handler.GetStocks())
+	ths.server.AddRoute(http.MethodPost, temochi.PATH_UPSERT_STOCKS, "UpsertStocks", handler.UpsertStocks())
+	ths.server.AddRoute(http.MethodPut, temochi.PATH_UPDATE_CHANNELS_STOCK, "UpdateChannelStocks", handler.UpdateChannelStocks())
+	ths.server.AddRoute(http.MethodPatch, temochi.PATH_DELETE_CHANNEL_STOCK, "DeleteChannelStock", handler.DeleteChannelStock())
+	ths.server.AddRoute(http.MethodDelete, temochi.PATH_DELETE_STOCK, "DeleteStock", handler.DeleteStock())
 
 	return nil
 }

@@ -2,8 +2,8 @@ github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20O
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/bagusbpg/tenpo/kikai/daemon v0.1.4 h1:sQBf7UfpKBNYzon/LYYH/Wpg/PZwJLUWTIfv1B8Rz9s=
 github.com/bagusbpg/tenpo/kikai/daemon v0.1.4/go.mod h1:HYvdxJx7fPvn9lfNX15ktBPKbPidzUP7S7JunYKpqCw=
-github.com/bagusbpg/tenpo/kikai/http v0.1.8 h1:tdkWnL6VIdQlVxnU8dFFFCcmkjg5+tyejUVEtzzRqpI=
-github.com/bagusbpg/tenpo/kikai/http v0.1.8/go.mod h1:fKBjZr/J0PSytA790xiIueIKNXiTFQg/bLQOyj8USh4=
+github.com/bagusbpg/tenpo/kikai/http v0.1.9 h1:xzTHwex5+bmfUBQznFXL5GVLCDCXB+HLZ3FGw7oyQts=
+github.com/bagusbpg/tenpo/kikai/http v0.1.9/go.mod h1:fKBjZr/J0PSytA790xiIueIKNXiTFQg/bLQOyj8USh4=
 github.com/bagusbpg/tenpo/kikai/log v0.1.4 h1:2Rk+eugA1ie8lhdc4Q34Evt8u07Bjj3JA9xISSeCGyM=
 github.com/bagusbpg/tenpo/kikai/log v0.1.4/go.mod h1:hv2vz6OWJM9Vvv2mw2Aw8yLt1Ri/t0yUuR7ZK7/u45U=
 github.com/bagusbpg/tenpo/kikai/sql v0.1.1 h1:cCWYFwxubhRRJo4iEiCDfspAKOd+/3yc2YheCTw7wgg=
