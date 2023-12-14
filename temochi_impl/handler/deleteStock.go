@@ -20,12 +20,12 @@ func (ths handler) DeleteStock() http.HandlerFunc {
 		err := ths.service.DeleteStock(r.Context(), req, nil)
 		if err != nil {
 			err = fmt.Errorf("failed at service.DeleteStock: %v", err)
-			tenpoLog.Error(r.Context(), r.URL.Path, err)
+			tenpoLog.Error(r.Context(), err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)
-		tenpoLog.Success(r.Context(), r.URL.Path)
+		tenpoLog.Success(r.Context())
 	}
 }

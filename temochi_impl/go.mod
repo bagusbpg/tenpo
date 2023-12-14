@@ -5,8 +5,8 @@ go 1.21.0
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bagusbpg/tenpo/kikai/daemon v0.1.4
-	github.com/bagusbpg/tenpo/kikai/http v0.1.7
-	github.com/bagusbpg/tenpo/kikai/log v0.1.3
+	github.com/bagusbpg/tenpo/kikai/http v0.1.8
+	github.com/bagusbpg/tenpo/kikai/log v0.1.4
 	github.com/bagusbpg/tenpo/kikai/sql v0.1.1
 	github.com/bagusbpg/tenpo/temochi v0.1.3
 	github.com/go-playground/validator/v10 v10.16.0
