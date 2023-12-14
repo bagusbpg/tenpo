@@ -20,7 +20,7 @@ func (ths handler) GetStocks() http.HandlerFunc {
 		query, err := url.ParseQuery(unescapedQuery)
 		if err != nil {
 			err = fmt.Errorf("failed parsing query: %v", err)
-			tenpoLog.Error(r, "GetStocks", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -34,7 +34,7 @@ func (ths handler) GetStocks() http.HandlerFunc {
 		err = ths.service.GetStocks(r.Context(), req, &res)
 		if err != nil {
 			err = fmt.Errorf("failed at service.GetStocks: %v", err)
-			tenpoLog.Error(r, "GetStocks", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -43,6 +43,6 @@ func (ths handler) GetStocks() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"data": res,
 		})
-		tenpoLog.Success(r, "GetStocks")
+		tenpoLog.Success(r.Context(), r.URL.Path)
 	}
 }

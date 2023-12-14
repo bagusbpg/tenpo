@@ -17,7 +17,7 @@ func (ths handler) DeleteChannelStock() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			err = fmt.Errorf("failed reading request body: %v", err)
-			tenpoLog.Error(r, "DeletedChannelStock", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -26,14 +26,14 @@ func (ths handler) DeleteChannelStock() http.HandlerFunc {
 		err = ths.validator.StructCtx(r.Context(), req)
 		if err != nil {
 			err = fmt.Errorf("failed validating request body: %v", err)
-			tenpoLog.Error(r, "DeletedChannelStock", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if strings.TrimPrefix(r.URL.Path, "/stocks/") != req.WarehouseID {
 			err = errors.New("warehouse_id mismatch")
-			tenpoLog.Error(r, "DeletedChannelStock", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, "warehouse_id mismatch", http.StatusForbidden)
 			return
 		}
@@ -41,12 +41,12 @@ func (ths handler) DeleteChannelStock() http.HandlerFunc {
 		err = ths.service.DeleteChannelStock(r.Context(), req, nil)
 		if err != nil {
 			err = fmt.Errorf("failed at service.DeleteChannelStock: %v", err)
-			tenpoLog.Error(r, "DeletedChannelStock", err)
+			tenpoLog.Error(r.Context(), r.URL.Path, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)
-		tenpoLog.Success(r, "DeleteChannelStock")
+		tenpoLog.Success(r.Context(), r.URL.Path)
 	}
 }
