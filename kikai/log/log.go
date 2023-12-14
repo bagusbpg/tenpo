@@ -7,6 +7,15 @@ import (
 	tenpoHttp "github.com/bagusbpg/tenpo/kikai/http"
 )
 
+func Warn(ctx context.Context, path string, message string) {
+	slog.LogAttrs(
+		ctx,
+		slog.LevelWarn, message,
+		slog.String("path", path),
+		slog.String("requestID", getRequestID(ctx)),
+	)
+}
+
 func Error(ctx context.Context, path string, err error) {
 	slog.LogAttrs(
 		ctx,
