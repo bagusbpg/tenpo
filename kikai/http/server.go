@@ -6,10 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"reflect"
 	"regexp"
-	"runtime"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -100,8 +97,7 @@ func (ths *Server) Stop() error {
 // AddRoute registers new route to http router with
 // default logger and response writer content-type
 // (json) are set via global middleware
-func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
-	handlerName := getFuncName(handler)
+func (ths *Server) AddRoute(method string, path string, handlerName string, handler http.Handler) {
 	newHandler := func(h http.Handler) httprouter.Handle {
 		return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			w.Header().Set("Content-Type", "application/json")
@@ -118,10 +114,10 @@ func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
 			slog.LogAttrs(
 				ctx,
 				slog.LevelInfo, "receiving http request",
-				slog.String("method", r.Method),
-				slog.String("path", r.URL.String()),
-				slog.String("handler", handlerName),
 				slog.String("requestID", requestID),
+				slog.String("path", r.URL.String()),
+				slog.String("method", r.Method),
+				slog.String("handler", handlerName),
 			)
 
 			handler.ServeHTTP(w, r)
@@ -146,10 +142,4 @@ func (ths *Server) AddRoute(method string, path string, handler http.Handler) {
 			slog.String("method", method),
 		)
 	}
-}
-
-var re = regexp.MustCompile(`\)\.[^\.]*`)
-
-func getFuncName(handler http.Handler) string {
-	return strings.TrimPrefix(re.FindString(runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()), ").")
 }
