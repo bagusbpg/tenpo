@@ -13,7 +13,7 @@ import (
 
 type Component interface {
 	// New initiates the service with the given config
-	New(config interface{}) error
+	Init(config interface{}) error
 
 	// Start starts the service's components
 	Start() error
@@ -35,13 +35,13 @@ func Run(component Component, config interface{}) {
 		slog.LogAttrs(
 			ctx,
 			slog.LevelInfo, "exiting service",
-			slog.String("receivingSignal", sig.String()),
+			slog.String("receivedSignal", sig.String()),
 		)
 
 		if err := component.Stop(); err != nil {
 			slog.LogAttrs(
 				ctx,
-				slog.LevelError, "failed stopping service",
+				slog.LevelError, "failed to stop service",
 				slog.String("causedBy", err.Error()),
 			)
 		}
@@ -63,18 +63,18 @@ func Run(component Component, config interface{}) {
 	if err != nil {
 		slog.LogAttrs(
 			ctx,
-			slog.LevelError, "failed loading config",
+			slog.LevelError, "failed to load config",
 			slog.String("causedBy", err.Error()),
 		)
 
 		return
 	}
 
-	err = component.New(config)
+	err = component.Init(config)
 	if err != nil {
 		slog.LogAttrs(
 			ctx,
-			slog.LevelError, "failed initiating service",
+			slog.LevelError, "failed to initiate service",
 			slog.String("causedBy", err.Error()),
 		)
 
@@ -91,7 +91,7 @@ func Run(component Component, config interface{}) {
 	if err != nil {
 		slog.LogAttrs(
 			ctx,
-			slog.LevelError, "failed starting service",
+			slog.LevelError, "failed to start service",
 			slog.String("causedBy", err.Error()),
 		)
 
@@ -99,7 +99,7 @@ func Run(component Component, config interface{}) {
 		if err != nil {
 			slog.LogAttrs(
 				ctx,
-				slog.LevelError, "failed stopping service",
+				slog.LevelError, "failed to stop service",
 				slog.String("causedBy", err.Error()),
 			)
 		}
