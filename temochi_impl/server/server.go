@@ -14,12 +14,16 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type Component struct {
+type component struct {
 	config *config.Config
 	server *tenpoHttp.Server
 }
 
-func (ths *Component) New(appConfig interface{}) error {
+func New() *component {
+	return &component{}
+}
+
+func (ths *component) Init(appConfig interface{}) error {
 	ths.config = appConfig.(*config.Config)
 	ths.server = tenpoHttp.NewHTTPServer(ths.config.ServerConfig)
 
@@ -42,7 +46,7 @@ func (ths *Component) New(appConfig interface{}) error {
 	return nil
 }
 
-func (ths *Component) Start() error {
+func (ths component) Start() error {
 	if err := ths.server.Start(); err != nil {
 		return fmt.Errorf("failed starting http server: %s", err.Error())
 	}
@@ -50,7 +54,7 @@ func (ths *Component) Start() error {
 	return nil
 }
 
-func (ths *Component) Stop() error {
+func (ths component) Stop() error {
 	if err := ths.server.Stop(); err != nil {
 		return fmt.Errorf("failed stopping http server: %s", err.Error())
 	}

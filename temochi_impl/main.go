@@ -14,5 +14,5 @@ func init() {
 }
 
 func main() {
-	daemon.Run(&server.Component{}, &config.Config{})
+	daemon.Run(server.New(), &config.Config{})
 }
