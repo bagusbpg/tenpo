@@ -51,45 +51,45 @@ WHERE warehouse_id = $2 AND sku = $3 AND (gate_id <> $4 OR channel_id <> $5)`
 func (ths repository) UpdateChannelStocks(ctx context.Context, input UpdateChannelStocksDBInput, output *UpdateChannelStocksDBOutput) error {
 	tx, err := ths.db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("failed starting UpdateChannelStocks transaction: %s", err.Error())
+		return fmt.Errorf("failed to start UpdateChannelStocks transaction: %s", err.Error())
 	}
 	defer tx.Rollback()
 
 	stmtChannelStock, err := tx.PrepareContext(ctx, UPDATE_CHANNEL_STOCK_QUERY)
 	if err != nil {
-		return fmt.Errorf("failed preparing statement UpdateChannelStock: %s", err.Error())
+		return fmt.Errorf("failed to prepare statement UpdateChannelStock: %s", err.Error())
 	}
 
 	stmtInventoryWithBufferStock, err := tx.PrepareContext(ctx, UPDATE_INVENTORY_QUERY_WITH_BUFFER_STOCK)
 	if err != nil {
-		return fmt.Errorf("failed preparing statement UpdateInventory with buffer stock: %s", err.Error())
+		return fmt.Errorf("failed to prepare statement UpdateInventory with buffer stock: %s", err.Error())
 	}
 
 	stmtRelatedChannelStock, err := tx.PrepareContext(ctx, UPDATE_RELATED_CHANNEL_STOCK_QUERY)
 	if err != nil {
-		return fmt.Errorf("failed preparing statement UpdateChannelStock for related stock: %s", err.Error())
+		return fmt.Errorf("failed to prepare statement UpdateChannelStock for related stock: %s", err.Error())
 	}
 
 	for _, item := range input.UpdateChannelStockInputs {
 		_, err = stmtChannelStock.ExecContext(ctx, item.Delta, input.WarehouseID, item.SKU, item.GateID, item.ChannelID)
 		if err != nil {
-			return fmt.Errorf("failed executing UpdateChannelStock query: %s", err.Error())
+			return fmt.Errorf("failed to execute UpdateChannelStock query: %s", err.Error())
 		}
 
 		_, err = stmtInventoryWithBufferStock.ExecContext(ctx, item.Delta, input.WarehouseID, item.SKU)
 		if err != nil {
-			return fmt.Errorf("failed executing UpdateChannelStock query with buffer stock: %s", err.Error())
+			return fmt.Errorf("failed to execute UpdateChannelStock query with buffer stock: %s", err.Error())
 		}
 
 		_, err = stmtRelatedChannelStock.ExecContext(ctx, item.Delta, input.WarehouseID, item.SKU, item.GateID, item.ChannelID)
 		if err != nil {
-			return fmt.Errorf("failed executing UpdateChannelStock query for related stock: %s", err.Error())
+			return fmt.Errorf("failed to execute UpdateChannelStock query for related stock: %s", err.Error())
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("failed committing UpdateChannelStock transaction: %s", err.Error())
+		return fmt.Errorf("failed to commit UpdateChannelStock transaction: %s", err.Error())
 	}
 
 	return nil

@@ -33,7 +33,7 @@ func (ths repository) UpsertStock(ctx context.Context, input UpsertStockDBInput,
 
 	_, err := ths.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed executing UpsertInventory query: %s", err.Error())
+		return fmt.Errorf("failed to execute UpsertInventory query: %s", err.Error())
 	}
 
 	return nil

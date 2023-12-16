@@ -11,7 +11,7 @@ import (
 func TestDeleteStock(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
-		t.Fatalf("failed opening a stub database connection: %s", err.Error())
+		t.Fatalf("failed to open a stub database connection: %s", err.Error())
 	}
 	defer db.Close()
 

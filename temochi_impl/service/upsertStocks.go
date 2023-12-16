@@ -14,7 +14,7 @@ func (ths service) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq
 		*res = temochi.UpsertStocksRes{
 			FailedSpecs: failedSpecs,
 		}
-		return fmt.Errorf("failed validating channel stock")
+		return fmt.Errorf("failed to validate channel stock")
 	}
 
 	err := ths.repository.UpsertStock(ctx, input, nil)

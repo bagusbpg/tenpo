@@ -31,7 +31,7 @@ func (ths repository) GetStocks(ctx context.Context, input GetStocksDBInput, out
 	var res sql.NullString
 	err := ths.db.QueryRowContext(ctx, query, args...).Scan(&res)
 	if err != nil && err != sql.ErrNoRows {
-		return fmt.Errorf("failed executing query: %s", err.Error())
+		return fmt.Errorf("failed to execute query: %s", err.Error())
 	}
 
 	if !res.Valid {
@@ -40,7 +40,7 @@ func (ths repository) GetStocks(ctx context.Context, input GetStocksDBInput, out
 
 	err = json.Unmarshal([]byte(res.String), &output.Stocks)
 	if err != nil {
-		return fmt.Errorf("failed parsing result: %s", err.Error())
+		return fmt.Errorf("failed to parse result: %s", err.Error())
 	}
 
 	return nil

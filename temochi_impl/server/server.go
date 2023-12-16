@@ -29,7 +29,7 @@ func (ths *component) Init(appConfig interface{}) error {
 
 	db, err := tenpoSql.NewClient(ths.config.DBConfig)
 	if err != nil {
-		return fmt.Errorf("failed opening database connection: %s", err.Error())
+		return fmt.Errorf("failed to open database connection: %s", err.Error())
 	}
 
 	repository := repository.New(db)
@@ -48,7 +48,7 @@ func (ths *component) Init(appConfig interface{}) error {
 
 func (ths component) Start() error {
 	if err := ths.server.Start(); err != nil {
-		return fmt.Errorf("failed starting http server: %s", err.Error())
+		return fmt.Errorf("failed to start http server: %s", err.Error())
 	}
 
 	return nil
@@ -56,7 +56,7 @@ func (ths component) Start() error {
 
 func (ths component) Stop() error {
 	if err := ths.server.Stop(); err != nil {
-		return fmt.Errorf("failed stopping http server: %s", err.Error())
+		return fmt.Errorf("failed to stop http server: %s", err.Error())
 	}
 
 	return nil

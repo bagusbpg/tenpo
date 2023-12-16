@@ -16,7 +16,7 @@ func (ths handler) DeleteChannelStock() http.HandlerFunc {
 		var req temochi.DeleteChannelStockReq
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			err = fmt.Errorf("failed reading request body: %v", err)
+			err = fmt.Errorf("failed to read request body: %v", err)
 			tenpoLog.Error(r.Context(), err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -25,7 +25,7 @@ func (ths handler) DeleteChannelStock() http.HandlerFunc {
 
 		err = ths.validator.StructCtx(r.Context(), req)
 		if err != nil {
-			err = fmt.Errorf("failed validating request body: %v", err)
+			err = fmt.Errorf("failed to validate request body: %v", err)
 			tenpoLog.Error(r.Context(), err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

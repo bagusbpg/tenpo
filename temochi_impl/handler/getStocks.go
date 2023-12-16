@@ -19,7 +19,7 @@ func (ths handler) GetStocks() http.HandlerFunc {
 
 		query, err := url.ParseQuery(unescapedQuery)
 		if err != nil {
-			err = fmt.Errorf("failed parsing query: %v", err)
+			err = fmt.Errorf("failed to parse query: %v", err)
 			tenpoLog.Error(r.Context(), err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

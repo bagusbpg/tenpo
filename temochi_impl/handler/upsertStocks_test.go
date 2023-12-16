@@ -83,7 +83,7 @@ func TestUpsertStocks(t *testing.T) {
 		res := temochi.UpsertStocksRes{}
 		mockedService.EXPECT().
 			UpsertStocks(context.Background(), req, &res).
-			Return(errors.New("failed validating channel stock"))
+			Return(errors.New("failed to validate channel stock"))
 
 		reqByte, _ := json.Marshal(req)
 
