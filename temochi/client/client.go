@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	tenpo_http "github.com/bagusbpg/tenpo/kikai/http"
-	"github.com/bagusbpg/tenpo/temochi"
 )
 
 type client struct {
@@ -17,7 +16,7 @@ type Config struct {
 	URL          string
 }
 
-func NewTemochiClient(config Config) temochi.Service {
+func NewTemochiClient(config Config) *client {
 	return &client{
 		httpClient: tenpo_http.NewHTTPClient(config.ClientConfig),
 		url:        config.URL,

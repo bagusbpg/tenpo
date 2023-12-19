@@ -11,7 +11,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *client) UpdateChannelStocks(ctx context.Context, req temochi.UpdateChannelStocksReq, res *temochi.UpdateChannelStocksRes) error {
+func (ths client) UpdateChannelStocks(ctx context.Context, req temochi.UpdateChannelStocksReq, res *temochi.UpdateChannelStocksRes) error {
 	u, err := url.ParseRequestURI(ths.url)
 	if err != nil {
 		return fmt.Errorf("failed to parse base url: %s", err.Error())

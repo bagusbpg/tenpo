@@ -12,7 +12,7 @@ import (
 	"github.com/bagusbpg/tenpo/temochi"
 )
 
-func (ths *client) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq, res *temochi.UpsertStocksRes) error {
+func (ths client) UpsertStocks(ctx context.Context, req temochi.UpsertStocksReq, res *temochi.UpsertStocksRes) error {
 	u, err := url.ParseRequestURI(ths.url)
 	if err != nil {
 		return fmt.Errorf("failed to parse base url: %s", err.Error())
