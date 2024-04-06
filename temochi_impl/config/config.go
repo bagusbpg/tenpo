@@ -9,3 +9,7 @@ type Config struct {
 	ServerConfig tenpoHttp.ServerConfig
 	DBConfig     tenpoSql.Config
 }
+
+func New() *Config {
+	return &Config{}
+}
